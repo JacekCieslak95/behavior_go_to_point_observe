@@ -36,7 +36,6 @@ Zachowanie umożliwia dronowi poruszanie się do zadanego punktu prowadząc jedn
     W sekcji `behavior_descriptors` należy dokleić poniższe linie:
 #### UWAGA! Należy to wkleić do folderu `configs/droneX` każdego drona, którego chcemy uruchamiać z danym zachowaniem.
 #### Np. Używając tego w dronach 1 i 2 poniższy fragment należy dokleić do `behavior_catalog.yaml` w folderach `configs/drone1` oraz `configs/drone2`
-##### POPRAWIĆ PRZYJMOWANE ARGUMENTY
 		
           - behavior: GO_TO_POINT_OBSERVE
             timeout: 30
@@ -80,7 +79,6 @@ Jest to prędkość osiągana przez drona. Nie podając argumentu domyślnie spe
 
 Jest to numer drona, z którym kolizjii dron będzie unikał. Uwaga, przy niepodaniu numeru - dron nie unika kolizji.
 
-##### POPRAWIĆ PRZYJMOWANE ARGUMENTY
 Przykład wywołania:
 `result = api.executeBehavior('GO_TO_POINT_OBSERVE', coordinates=[6.5, 6.5, 3], speed=5, avoid_drone_id=2, observe_drone_id=2)`
 
