@@ -54,7 +54,7 @@ void BehaviorGoToPointObserve::ownSetUp(){
 
 void BehaviorGoToPointObserve::ownStart(){
   is_finished = false;
-  state = 0;
+  state = 1;
   std::cout << "ownStart" << std::endl;
 
   //Initialize topics
@@ -115,7 +115,7 @@ void BehaviorGoToPointObserve::ownStart(){
   }
   if(config_file["observe_drone_id"].IsDefined()){
     observeID=config_file["observe_drone_id"].as<int>();
-
+    std::cout << "observing drone" << observeID << std::endl;
     estimated_observed_pose_str = std::string("/drone") + std::to_string(observeID) + std::string("/estimated_pose");
     estimated_observed_pose_sub = node_handle.subscribe(estimated_observed_pose_str, 1000, &BehaviorGoToPointObserve::estimatedObservedPoseCallBack, this);
   }
@@ -124,32 +124,30 @@ void BehaviorGoToPointObserve::ownStart(){
     observated_point.x = points[0];
     observated_point.y = points[1];
     observated_point.z = points[2];
+    std::cout << "observing point [" << points[0] << ", "<< points[1] << ", " << points[3] << "]" << std::endl;
   }
   else{
     observated_point.x = target_position.x;
     observated_point.y = target_position.y;
     observated_point.z = target_position.z;
+    std::cout << "observing target point [" << points[0] << ", "<< points[1] << ", " << points[3] << "]" << std::endl;
   }
 
   estimated_pose_msg = *ros::topic::waitForMessage<droneMsgsROS::dronePose>(estimated_pose_str, node_handle, ros::Duration(2));
+
+  droneMsgsROS::setControlMode mode;
+  mode.request.controlMode.command=mode.request.controlMode.SPEED_CONTROL;
+  mode_service.call(mode);
+
+  droneMsgsROS::droneCommand msg;
+  msg.command = droneMsgsROS::droneCommand::MOVE;
+  controllers_pub.publish(msg);
 }
 
 void BehaviorGoToPointObserve::ownRun(){
   if(!is_finished){
     switch(state){
-    case 0:{  //check if rotation is finished
-      std::cout << "state0" << std::endl;
-      droneMsgsROS::setControlMode mode;
-      mode.request.controlMode.command=mode.request.controlMode.SPEED_CONTROL;
-      mode_service.call(mode);
-
-      droneMsgsROS::droneCommand msg;
-      msg.command = droneMsgsROS::droneCommand::MOVE;
-      controllers_pub.publish(msg);
-      state=1;
-    }
     case 1:{  //movement in xyz
-      std::cout << "state 1" << " distance to intruder = " << intruderDistanceXY << std::endl;
       float distance_variation_maximum = 0.2;
       double distanceXY = sqrt(pow(target_position.x-estimated_pose_msg.x,2)
                              + pow(target_position.y-estimated_pose_msg.y,2));
@@ -226,8 +224,6 @@ void BehaviorGoToPointObserve::ownRun(){
       break;
     }
     case 3:{//safety zone 0 - escpe from intruder
-      std::cout << "safety zone 0 - escpe from intruder" << " distance to intruder = " << intruderDistanceXY << std::endl;
-
       if(intruderDistanceXY > safetyR1){ // start movement in normal way
         state = 1;
         break;
@@ -282,7 +278,6 @@ void BehaviorGoToPointObserve::ownRun(){
       break;
     }
     case 4:{//safety zone 1 - stop movement
-      std::cout << "safety zone 1 - stop movement" << " distance to intruder = " << intruderDistanceXY << std::endl;
       if(intruderDistanceXY < safetyR0){ // start escape
         state = 3;
         break;
