@@ -115,7 +115,7 @@ void BehaviorGoToPointObserve::ownStart(){
   }
   if(config_file["observe_drone_id"].IsDefined()){
     observeID=config_file["observe_drone_id"].as<int>();
-    std::cout << "observing drone" << observeID << std::endl;
+    std::cout << "Observing drone" << observeID << std::endl;
     estimated_observed_pose_str = std::string("/drone") + std::to_string(observeID) + std::string("/estimated_pose");
     estimated_observed_pose_sub = node_handle.subscribe(estimated_observed_pose_str, 1000, &BehaviorGoToPointObserve::estimatedObservedPoseCallBack, this);
   }
@@ -124,13 +124,13 @@ void BehaviorGoToPointObserve::ownStart(){
     observated_point.x = points[0];
     observated_point.y = points[1];
     observated_point.z = points[2];
-    std::cout << "observing point [" << points[0] << ", "<< points[1] << ", " << points[3] << "]" << std::endl;
+    std::cout << "Observing point [" << observated_point.x << ", "<< observated_point.y << ", " << observated_point.z << "]" << std::endl;
   }
   else{
     observated_point.x = target_position.x;
     observated_point.y = target_position.y;
     observated_point.z = target_position.z;
-    std::cout << "observing target point [" << points[0] << ", "<< points[1] << ", " << points[3] << "]" << std::endl;
+    std::cout << "Observing target point [" << observated_point.x << ", "<< observated_point.y << ", " << observated_point.z << "]" << std::endl;
   }
 
   estimated_pose_msg = *ros::topic::waitForMessage<droneMsgsROS::dronePose>(estimated_pose_str, node_handle, ros::Duration(2));
