@@ -44,7 +44,7 @@ void BehaviorGoToPointObserve::ownSetUp(){
   node_handle.param<std::string>("yaw_controller_str",yaw_controller_str , "droneControllerYawRefCommand");
   node_handle.param<std::string>("service_topic_str",service_topic_str , "droneTrajectoryController/setControlMode");
   node_handle.param<std::string>("drone_position_str",drone_position_str , "dronePositionRefs");
-  node_handle.param<std::string>("speed_topic",speed_topic , "droneSpeedsRefs");
+  node_handle.param<std::string>("speed_topic",speed_topic_str , "droneSpeedsRefs");
   node_handle.param<std::string>("drone_control_mode",drone_control_mode_str,"droneTrajectoryController/controlMode");
   node_handle.param<std::string>("d_altitude",d_altitude_str,"command/dAltitude");
   node_handle.param<std::string>("consult_belief",execute_query_srv,"consult_belief");
@@ -65,12 +65,11 @@ void BehaviorGoToPointObserve::ownStart(){
   yaw_controller_pub=node_handle.advertise<droneMsgsROS::droneYawRefCommand>(yaw_controller_str,1000);
   mode_service=node_handle.serviceClient<droneMsgsROS::setControlMode>(service_topic_str);
   drone_position_pub=node_handle.advertise< droneMsgsROS::dronePositionRefCommandStamped>(drone_position_str,1000);
-  speed_topic_pub=node_handle.advertise<droneMsgsROS::droneSpeeds>(speed_topic,1000);
+  speed_topic_pub=node_handle.advertise<droneMsgsROS::droneSpeeds>(speed_topic_str,1000);
   d_altitude_pub = node_handle.advertise<droneMsgsROS::droneDAltitudeCmd>(d_altitude_str,1);
   query_client = node_handle.serviceClient <droneMsgsROS::ConsultBelief> (execute_query_srv);
   rotation_start_client = node_handle.serviceClient<droneMsgsROS::StartBehavior>(rotation_start_srv);
-  rotation_stop_client = node_handle.serviceClient<droneMsgsROS::StartBehavior>(rotation_stop_srv);
-
+  rotation_stop_client = node_handle.serviceClient<droneMsgsROS::StartBehavior>(rotation_stop_srv);  
 
   //get arguments
   std::string arguments=getArguments();

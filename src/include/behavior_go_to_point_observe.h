@@ -70,7 +70,7 @@ private:
   std::string yaw_controller_str;
   std::string service_topic_str;
   std::string drone_position_str;
-  std::string speed_topic;
+  std::string speed_topic_str;
   std::string drone_control_mode_str;
   std::string d_altitude_str;
   std::string execute_query_srv;
