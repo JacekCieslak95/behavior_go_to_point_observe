@@ -306,6 +306,19 @@ void BehaviorGoToPointObserve::ownRun(){
         droneSpeed.dx = escapeSpeed * temp_dx/temp_length;
         droneSpeed.dy = escapeSpeed * temp_dy/temp_length;
       }
+      else if (estimated_intruder_speed_msg.dy == 0.0 && estimated_intruder_speed_msg.dx == 0.0){
+        droneDirection = (-1) * ((estimated_intruder_pose_msg.x - estimated_pose_msg.x)/(estimated_intruder_pose_msg.y - estimated_pose_msg.y));
+        if (yIntruderEstimate > estimated_pose_msg.y){
+          temp_dy = (-1) * std::abs(droneDirection);
+        }
+        else{
+          temp_dy = std::abs(droneDirection);
+        }
+        temp_dx = temp_dy / droneDirection;
+        float temp_length = sqrt(pow(temp_dx,2) + pow(temp_dy,2));
+        droneSpeed.dx = escapeSpeed * temp_dx/temp_length;
+        droneSpeed.dy = escapeSpeed * temp_dy/temp_length;
+      }
       else if (estimated_intruder_speed_msg.dy != 0.0){
         if (estimated_intruder_pose_msg.x < estimated_pose_msg.x){
           droneSpeed.dx = escapeSpeed;
