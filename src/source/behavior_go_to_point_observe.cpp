@@ -286,12 +286,49 @@ void BehaviorGoToPointObserve::ownRun(){
         state = 1;
         break;
       }
+      float yIntruderEstimate = estimated_intruder_pose_msg.y + (estimated_intruder_speed_msg.dy/estimated_intruder_speed_msg.dx) *
+          (estimated_pose_msg.x - estimated_intruder_pose_msg.x);
+
+      float droneDirection;
+      float escapeSpeed = speed * (1 - 0.5 * (intruderDistanceXY - safetyR0)/(safetyR1 - safetyR0));
+      float temp_dx, temp_dy;
       droneMsgsROS::droneSpeeds droneSpeed;
-      droneSpeed.dx = 0.0;
-      droneSpeed.dy = 0.0;
+      if (estimated_intruder_speed_msg.dy != 0.0 && estimated_intruder_speed_msg.dx != 0.0){
+        droneDirection = (-1) * (estimated_intruder_speed_msg.dx/estimated_intruder_speed_msg.dy);
+        if (yIntruderEstimate > estimated_pose_msg.y){
+          temp_dy = (-1) * std::abs(droneDirection);
+        }
+        else{
+          temp_dy = std::abs(droneDirection);
+        }
+        temp_dx = temp_dy / droneDirection;
+        float temp_length = sqrt(pow(temp_dx,2) + pow(temp_dy,2));
+        droneSpeed.dx = escapeSpeed * temp_dx/temp_length;
+        droneSpeed.dy = escapeSpeed * temp_dy/temp_length;
+      }
+      else if (estimated_intruder_speed_msg.dy != 0.0){
+        if (estimated_intruder_pose_msg.x < estimated_pose_msg.x){
+          droneSpeed.dx = escapeSpeed;
+        }
+        else{
+          droneSpeed.dx = (-1.0) * escapeSpeed;
+        }
+        droneSpeed.dy = 0.0;
+      }
+      else{
+        if (estimated_intruder_pose_msg.y < estimated_pose_msg.y){
+          droneSpeed.dy = escapeSpeed;
+        }
+        else{
+          droneSpeed.dy = (-1.0) * escapeSpeed;
+        }
+        droneSpeed.dx = 0.0;
+      }
+
       droneSpeed.dz = 0.0;
-      droneSpeed.dyaw =calculateDYaw();
+      droneSpeed.dyaw = calculateDYaw();
       speed_topic_pub.publish(droneSpeed);
+
       break;
     }
     default:{
