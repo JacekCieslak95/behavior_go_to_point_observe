@@ -102,7 +102,11 @@ void BehaviorGoToPointObserve::ownStart(){
   }
   if(config_file["avoid_drone_id"].IsDefined()){
     avoidID=config_file["avoid_drone_id"].as<int>();
-
+    if (avoidID == atoi(drone_id.c_str())){ //check if is not following itself
+      std::cout<<"Can not avoid itself!" << std::endl;
+      setStarted(false);
+      return;
+    }
     estimated_intruder_pose_str = std::string("/drone") + std::to_string(avoidID) + std::string("/estimated_pose");
     estimated_intruder_speed_str = std::string("/drone") + std::to_string(avoidID) + std::string("/estimated_speed");
     estimated_intruder_pose_sub = node_handle.subscribe(estimated_intruder_pose_str, 1000, &BehaviorGoToPointObserve::estimatedIntruderPoseCallBack, this);
